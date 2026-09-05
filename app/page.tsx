@@ -51,37 +51,44 @@ export default function Home() {
         </p>
       </header>
 
-      <IdeaForm
-        onGenerated={(newIdeas, newSource, input) => {
-          setIdeas(newIdeas);
-          setSource(newSource);
-          setLastInput(input);
-          setSavedId(null);
-          setSavedClientId(null);
-          setSavedTitle("");
-        }}
-      />
+      <section className="bento">
+        <div className="cell span-wide">
+          <div className="cell-label">Step 1 · Your profile</div>
+          <IdeaForm
+            onGenerated={(newIdeas, newSource, input) => {
+              setIdeas(newIdeas);
+              setSource(newSource);
+              setLastInput(input);
+              setSavedId(null);
+              setSavedClientId(null);
+              setSavedTitle("");
+            }}
+          />
+        </div>
 
-      <div style={{ height: 30 }} />
+        {ideas.length > 0 && (
+          <ResultsList
+            ideas={ideas}
+            source={source}
+            interests={lastInput.interests}
+            skills={lastInput.skills}
+            onSave={onSave}
+            savedClientId={savedClientId}
+            savingId={saving}
+          />
+        )}
 
-      <ResultsList
-        ideas={ideas}
-        source={source}
-        interests={lastInput.interests}
-        skills={lastInput.skills}
-        onSave={onSave}
-        savedClientId={savedClientId}
-        savingId={saving}
-      />
+        {saveError && <div className="form-error" style={{ gridColumn: "1 / -1" }}>{saveError}</div>}
 
-      {saveError && <div className="form-error">{saveError}</div>}
+        {savedId !== null && (
+          <MentorChat ideaId={savedId} ideaTitle={savedTitle || "Saved idea"} />
+        )}
+      </section>
 
-      {savedId !== null && (
-        <MentorChat
-          ideaId={savedId}
-          ideaTitle={savedTitle || "Saved idea"}
-        />
-      )}
+      <footer className="page-footer">
+        <span>IdeaForge · dual-path generation — AI on, templates always behind it</span>
+        <span>demo build · no auth, no tracking</span>
+      </footer>
     </main>
   );
 }

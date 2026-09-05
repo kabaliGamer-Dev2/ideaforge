@@ -77,8 +77,7 @@ export default function IdeaForm({ onGenerated }: Props) {
   }
 
   return (
-    <form className="card" onSubmit={onSubmit}>
-      <div className="card-label">Step 1 · Your profile</div>
+    <form onSubmit={onSubmit}>
       <div className="form-grid">
         <div className="field">
           <label htmlFor="interests">Interests</label>

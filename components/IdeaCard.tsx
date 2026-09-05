@@ -3,8 +3,10 @@
 import type { Idea } from "./IdeaForm";
 import FitGauge from "./FitGauge";
 
-export default function IdeaCard({ idea, saved, onSave, saving }: {
+export default function IdeaCard({ idea, rank, wide, saved, onSave, saving }: {
   idea: Idea;
+  rank: number;
+  wide?: boolean;
   saved?: boolean;
   onSave?: (idea: Idea) => void;
   saving?: boolean;
@@ -15,42 +17,45 @@ export default function IdeaCard({ idea, saved, onSave, saving }: {
   ];
 
   return (
-    <article className="idea-card">
+    <article className={`cell${wide ? " span-wide" : ""}`}>
       <div className="idea-meta">
-        {idea.domain} · {idea.difficulty} · {idea.duration_weeks} weeks
+        <span>{idea.domain} · {idea.difficulty} · {idea.duration_weeks} weeks</span>
+        <span className="idea-rank">{String(rank).padStart(2, "0")}</span>
       </div>
       <h3 className="idea-title">{idea.title}</h3>
       <p className="idea-prose">{idea.summary}</p>
-      {idea.why_fits && <p className="idea-prose">
-        <em>Why it fits:</em> {idea.why_fits}
-      </p>}
-
-      {idea.fit && (
-        <>
-          <div>
-            <div className="idea-block-label">Fit — visible reason, not a number</div>
-            <FitGauge band={idea.fit.band} />
-            {matches.length > 0 && (
-              <div className="chips" style={{ marginTop: 8 }}>
-                {matches.map((m) => (
-                  <span key={m.t} className="chip match">
-                    {m.kind === "interest" ? "◎" : "◆"} {m.t}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        </>
+      {idea.why_fits && (
+        <p className="idea-prose">
+          <em>Why it fits:</em> {idea.why_fits}
+        </p>
       )}
 
-      <div>
-        <div className="idea-block-label">Features</div>
-        <ul className="idea-features">
-          {idea.features.map((f) => (
-            <li key={f}>{f}</li>
-          ))}
-        </ul>
-      </div>
+      {idea.fit && (
+        <div>
+          <div className="idea-block-label">Fit — visible reason, not a number</div>
+          <FitGauge band={idea.fit.band} />
+          {matches.length > 0 && (
+            <div className="chips" style={{ marginTop: 8 }}>
+              {matches.map((m) => (
+                <span key={m.t} className="chip match">
+                  {m.kind === "interest" ? "◎" : "◆"} {m.t}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {wide && idea.features.length > 0 && (
+        <div>
+          <div className="idea-block-label">Features</div>
+          <ul className="idea-features">
+            {idea.features.map((f) => (
+              <li key={f}>{f}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div>
         <div className="idea-block-label">Stack</div>

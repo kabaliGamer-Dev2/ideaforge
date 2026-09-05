@@ -29,32 +29,30 @@ export default function ResultsList({
   }
 
   return (
-    <section>
-      <div className="card" style={{ borderStyle: "dashed", padding: "14px 18px", marginBottom: 20 }}>
-        <div className="mono" style={{ fontSize: 12.5 }}>
-          {ideas.length} idea{ideas.length > 1 ? "s" : ""} ranked for
-          {interests.length > 0 ? ` interests [${interests.join(", ")}]` : ""}
-          {skills.length > 0 ? ` skills [${skills.join(", ")}]` : ""}
-        </div>
+    <section className="bento">
+      <div className="meta-strip">
+        {ideas.length} idea{ideas.length > 1 ? "s" : ""} ranked for
+        {interests.length > 0 ? ` interests [${interests.join(", ")}]` : ""}
+        {skills.length > 0 ? ` skills [${skills.join(", ")}]` : ""}
       </div>
 
       {source === "fallback" && (
-        <div className="fallback-notice">
+        <div className="fallback-notice" style={{ gridColumn: "1 / -1" }}>
           Generated offline from templates. The AI service is unavailable.
         </div>
       )}
 
-      <div className="idea-grid">
-        {ideas.map((idea) => (
-          <IdeaCard
-            key={idea.id}
-            idea={idea}
-            onSave={onSave}
-            saved={savedClientId === idea.id}
-            saving={savingId === idea.id}
-          />
-        ))}
-      </div>
+      {ideas.map((idea, i) => (
+        <IdeaCard
+          key={idea.id}
+          idea={idea}
+          rank={i + 1}
+          wide={i === 0}
+          onSave={onSave}
+          saved={savedClientId === idea.id}
+          saving={savingId === idea.id}
+        />
+      ))}
     </section>
   );
 }

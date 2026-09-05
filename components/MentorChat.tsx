@@ -41,7 +41,6 @@ export default function MentorChat({ ideaId, ideaTitle }: { ideaId: string; idea
       });
       const body = await res.json();
       if (!res.ok || !body.ok) {
-        // roll the optimistic message back
         setTurns((t) => t.filter((x) => x !== optimistic));
         setError(body.message ?? "The mentor could not answer right now.");
         return;
@@ -59,51 +58,35 @@ export default function MentorChat({ ideaId, ideaTitle }: { ideaId: string; idea
   }
 
   return (
-    <div className="card" style={{ marginTop: 14 }}>
-      <div className="card-label">Mentor chat · {ideaTitle}</div>
+    <section className="cell span-wide">
+      <div className="cell-label">Mentor chat · {ideaTitle}</div>
 
-      <div style={{ display: "grid", gap: 10, marginBottom: 14 }}>
+      <div style={{ display: "grid", gap: 10 }}>
         {turns.length === 0 && (
-          <div className="empty-state" style={{ padding: "18px 14px", fontSize: 12.5 }}>
+          <div className="empty-state">
             Ask about scope, skills, stack, timeline — or what the examiner will probe.
           </div>
         )}
         {turns.map((t, i) => (
-          <div
-            key={i}
-            className="mono"
-            style={{
-              fontSize: 13.5,
-              lineHeight: 1.6,
-              whiteSpace: "pre-wrap",
-              padding: "10px 12px",
-              border: "1px solid var(--line)",
-              background: t.role === "user" ? "rgba(242,179,61,0.10)" : "rgba(255,255,255,0.5)",
-              borderLeft: t.role === "user" ? "3px solid var(--amber)" : "3px solid var(--teal)",
-              color: t.error ? "var(--stamp)" : undefined,
-            }}
-          >
-            <span style={{ display: "block", fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(22,32,43,0.5)", marginBottom: 4 }}>
-              {t.role === "user" ? "you" : "mentor"}
-            </span>
+          <div key={i} className={`msg${t.role === "user" ? " user" : ""}${t.error ? " error" : ""}`}>
+            <span className="who">{t.role === "user" ? "you" : "mentor"}</span>
             {t.content}
           </div>
         ))}
       </div>
 
-      <form onSubmit={onSend} style={{ display: "flex", gap: 10 }}>
+      <form onSubmit={onSend} className="chat-form">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="e.g. I don't know PyTorch yet — can I still finish in 12 weeks?"
-          style={{ flex: 1 }}
+          placeholder="e.g. I don\u2019t know PyTorch yet \u2014 can I still finish in 12 weeks?"
           disabled={pending}
         />
         <button type="submit" disabled={pending || input.trim().length === 0}>
           {pending ? "Thinking…" : "Ask"}
         </button>
       </form>
-      {error && <div className="form-error" style={{ marginTop: 10 }}>{error}</div>}
-    </div>
+      {error && <div className="form-error">{error}</div>}
+    </section>
   );
 }

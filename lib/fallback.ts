@@ -171,7 +171,7 @@ const FALLBACK_REPLIES: Record<MentorIntent, (idea: Idea) => string> = {
   scope: (idea) =>
     `Good scope question. The MVP core of "${idea.title}" is ${idea.features[0] ?? "the main feature"} and ${idea.features[1] ?? "one supporting flow"}. Everything else on the list is stretch. If time runs short, keep the first two features working end-to-end and cut the rest — a finished small scope defends far better than a broken large one.`,
   skill_gap: (idea) =>
-    `A missing skill is closable, an absent interest is not — so check your motivation first. For "${idea.title}" the skills in play are ${idea.stack.join(", ")}. Start with a 45-minute tutorial on the one you are missing, then build the smallest possible vertical slice with it; that converts "don't know it" into "learning it with a working example" in about two weeks.`,
+    `A missing skill is closable, an absent interest is not \u2014 so check your motivation first. For "${idea.title}" the skills in play are ${idea.stack.join(", ")}. Start with a 45-minute tutorial on the one you are missing, then build the smallest possible vertical slice with it; that converts \u201cdon\u2019t know it\u201d into \u201clearning it with a working example\u201d in about two weeks.`,
   stack: (idea) =>
     `For "${idea.title}", the recommended stack is ${idea.stack.join(", ")}. The principle: one language for the front end, one for the server, one database. ${idea.stack[0] ?? "The first item"} is the least replaceable choice — learn that one deeply and treat the rest as utilities. If you know any of these already, keep it and swap the adjacent unfamiliar piece for something in your comfort zone.`,
   timeline: (idea) =>
