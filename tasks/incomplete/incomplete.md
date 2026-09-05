@@ -9,28 +9,21 @@ Companion: `tasks/complete.md` (24 tasks completed).
 
 | Task | Blocker | Unblocked by |
 |---|---|---|
-| Create Supabase project + region | **Needs your browser + account** | You create it at supabase.com, paste the URL here |
-| Paste schema (ideas + messages, RLS on, 0 policies) | needs Supabase project | see `06-implementation-details.md` §8 |
-| Copy URL + **service role** key (not anon) | needs Supabase project | Project Settings → API |
-| Fill `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` + Vercel | needs key | above |
-| `lib/supabase.ts` server-only factory (`import "server-only"`) | above | Agent Prompt 5 |
-| `lib/session.ts` browser session id (`ideaforge_session`) | above | Agent Prompt 5 |
-| `POST /api/ideas` save (re-sanitise before insert) | above | Agent Prompt 5 |
-| `GET /api/ideas?session_id=` (422 when missing) | above | Agent Prompt 5 |
-| `POST /api/mentor` (load idea → classify intent → LLM → intent-keyed fallback, persist both) | above | Agent Prompt 5 |
-| `MentorChat.tsx` (optimistic send, rollback on failure, plain text only) | above | Agent Prompt 5 |
-| Checkpoint G: save → reload → still there → ask → grounded reply | above | all of Block 6 |
+| ~~Create Supabase project + schema~~ | ✅ DONE via MCP (tables live, RLS on) | — |
+| Copy **service role** key (not anon/publishable) | **Needs your dashboard** | Supabase → Project Settings → API → `service_role` → paste here |
+| Fill `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` + Vercel | above | above |
+| Checkpoint G: save → reload → still there → ask → grounded reply | above | live key test |
 
 ## 🚧 Block 7 — Ship & verify in production (T+155 → T+180)
 
 | Task | Blocker | Unblocked by |
 |---|---|---|
-| Push repo to GitHub | **Needs your GitHub account** | `gh repo create` or web UI |
-| Import into Vercel, set 5 env vars (Prod+Preview+Dev) | **Needs your Vercel account** | vercel.com/new |
+| ~~Push repo to GitHub~~ | ✅ DONE — `github.com/kabaliGamer-Dev2/ideaforge` | — |
+| Import into Vercel, set 5 env vars (Prod+Preview+Dev) | **Needs your Vercel login** (`vercel login` is interactive) | run `npx vercel` in repo root, or import from dashboard |
 | Checkpoint B: `/api/health` shows both flags true in production | deploy | above |
 | Run 5 acceptance tests **against the production URL** (env vars/timeouts/cold starts differ) | deploy | `01-product-requirements.md` §7 |
 | Fallback demo tab: second preview deployment with broken key | deploy | Block 6/7 |
-| Fill `06-PITCH.md` fill-ins + screenshot set | after deploy | — |
+| Fill `06-PITCH.md` fill-ins + screenshot set | screenshots captured | copy from `/tmp/opencode/ideaforge-*.png` |
 
 ## 🎨 Nice-to-have (only if Checkpoint G passes early)
 

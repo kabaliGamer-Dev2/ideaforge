@@ -33,17 +33,23 @@ Companion: `incomplete/incomplete.md` (everything not yet done, with the reason)
 | 22 | Production build green after all changes | `npm run build` | ✓ Compiled | 2026-09-05 |
 | 23 | Feature commit (no secrets) | git `dc3301a` | key grep = 0 | 2026-09-05 |
 | 24 | Hallmark anti-slop design skill installed | `~/.agents/skills/hallmark/` | SKILL.md + 3 references | 2026-09-05 |
-
-**Local dual-path proven:** `source: "llm"` observed with live Groq key; `source: "fallback"` observed with broken key. Acceptance test 3 (unplug-the-AI) passes **locally** — must be re-run against production after deploy.
+| 25 | Supabase project verified + schema applied via MCP | `cxcnwdhxkdeocwtaxipo` | `ideas` + `messages`, RLS on, constraints + indexes | 2026-09-05 |
+| 26 | Block 6 code complete: `lib/supabase.ts` (server-only), `lib/session.ts`, `/api/ideas` (POST/GET), `/api/mentor`, `MentorChat.tsx`, save button | committed `3918957` | build green | 2026-09-05 |
+| 27 | Bug fixes: per-card save state, history filter precedence, raw-score leak in GET ideas | committed `a7bb224` | build green | 2026-09-05 |
+| 28 | Hallmark Bento Grid design pass (rank voice, wide top-pick, 8-state controls, responsive + slop gates) | committed `82e7aae` | 26/26 assertions | 2026-09-05 |
+| 29 | `improvements` mentor intent (problem statement gap) — LLM prompt + fallback reply + classifier | committed `f6e4ebb` | 5/5 intent tests | 2026-09-05 |
+| 30 | **Full frontend test suite via Playwright (real browser)** | `scripts/frontend-test.mjs` | **23/23 PASS** — load, validation 422, LLM generate, 3 cards, ranks 01-03, wide top pick, fit bands, match chips, gauges, save error path, 375px no-h-scroll, console audit | 2026-09-05 |
+| 31 | Demo screenshots (form, cards, mobile 375px) | `/tmp/opencode/ideaforge-*.png` | captured | 2026-09-05 |
+| 32 | **GitHub repo created + pushed** | `github.com/kabaliGamer-Dev2/ideaforge` | `gh repo create --public --source . --push` | 2026-09-05 |
 
 ---
 
 ## Running totals
 
-- Completed tasks: **24**
+- Completed tasks: **32**
 - Open tasks: see `incomplete/incomplete.md`
-- Checkpoints passed: A (local boot) · C (26/26 assertions) · D (ideas over HTTP) · E (UI renders) · F (both sources, no 5xx)
-- Checkpoints pending: B (production health flags) · G (save + chat)
+- Checkpoints passed: A (local boot) · C (26/26 assertions) · D (ideas over HTTP) · E (UI renders) · F (both sources, no 5xx) · **UI (23/23 Playwright)**
+- Checkpoints pending: B (production health flags) · G (save + chat with real key)
 
 ---
 
