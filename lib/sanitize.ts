@@ -1,4 +1,4 @@
-import { VALID_DIFFICULTY, type Difficulty, type FitBand, type Idea } from "./types.ts";
+import { VALID_DIFFICULTY, type Difficulty, type FitBand, type Idea } from "../src/lib/types.ts";
 import { randomUUID } from "node:crypto";
 
 const MAX_TITLE = 255;

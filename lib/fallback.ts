@@ -1,4 +1,4 @@
-import type { GenerateInput, Idea, MentorIntent } from "./types.ts";
+import type { GenerateInput, Idea, MentorIntent } from "../src/lib/types.ts";
 import { createHash } from "node:crypto";
 
 function deterministicId(seed: string): string {

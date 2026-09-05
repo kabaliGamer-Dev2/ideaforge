@@ -34,6 +34,9 @@ export interface GenerateInput {
   notes?: string;
 }
 
+/** Idea as delivered to the browser — raw score stripped, fit explained by name. */
+export type ClientIdea = Omit<Idea, "score">;
+
 export type MentorIntent = "scope" | "skill_gap" | "stack" | "timeline" | "viva" | "improvements" | "general";
 
 export interface MentorMessage {

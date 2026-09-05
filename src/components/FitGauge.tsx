@@ -1,5 +1,3 @@
-"use client";
-
 export default function FitGauge({ band }: { band: string }) {
   const total = 12;
   const filled = band === "excellent" ? 12 : band === "strong" ? 9 : band === "moderate" ? 6 : 3;

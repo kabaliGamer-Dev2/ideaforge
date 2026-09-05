@@ -1,14 +1,12 @@
-"use client";
-
-import type { Idea } from "./IdeaForm";
+import type { ClientIdea } from "@/lib/types";
 import FitGauge from "./FitGauge";
 
-export default function IdeaCard({ idea, rank, wide, saved, onSave, saving }: {
-  idea: Idea;
+export default function IdeaCard({ idea, rank, featured, saved, onSave, saving }: {
+  idea: ClientIdea;
   rank: number;
-  wide?: boolean;
+  featured?: boolean;
   saved?: boolean;
-  onSave?: (idea: Idea) => void;
+  onSave?: (id: string, title: string) => void;
   saving?: boolean;
 }) {
   const matches = [
@@ -17,7 +15,7 @@ export default function IdeaCard({ idea, rank, wide, saved, onSave, saving }: {
   ];
 
   return (
-    <article className={`cell${wide ? " span-wide" : ""}`}>
+    <article className={`idea${featured ? " featured" : ""}`}>
       <div className="idea-meta">
         <span>{idea.domain} · {idea.difficulty} · {idea.duration_weeks} weeks</span>
         <span className="idea-rank">{String(rank).padStart(2, "0")}</span>
@@ -46,7 +44,7 @@ export default function IdeaCard({ idea, rank, wide, saved, onSave, saving }: {
         </div>
       )}
 
-      {wide && idea.features.length > 0 && (
+      {featured && idea.features.length > 0 && (
         <div>
           <div className="idea-block-label">Features</div>
           <ul className="idea-features">
@@ -84,7 +82,7 @@ export default function IdeaCard({ idea, rank, wide, saved, onSave, saving }: {
       {onSave && (
         <button
           type="button"
-          onClick={() => onSave(idea)}
+          onClick={() => onSave(idea.id, idea.title)}
           disabled={saved || saving}
           style={{ marginTop: "auto", alignSelf: "flex-start" }}
         >

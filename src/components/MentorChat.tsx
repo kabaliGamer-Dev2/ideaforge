@@ -1,7 +1,6 @@
-"use client";
-
 import { useState, type FormEvent } from "react";
 import { getSessionId } from "@/lib/session";
+import { getApiKey } from "@/lib/apikey";
 
 interface Turn {
   role: "user" | "assistant";
@@ -10,6 +9,7 @@ interface Turn {
 }
 
 export default function MentorChat({ ideaId, ideaTitle }: { ideaId: string; ideaTitle: string }) {
+  void ideaTitle;
   const [turns, setTurns] = useState<Turn[]>([]);
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(false);
@@ -34,6 +34,7 @@ export default function MentorChat({ ideaId, ideaTitle }: { ideaId: string; idea
           idea_id: ideaId,
           session_id: getSessionId(),
           message,
+          user_api_key: getApiKey() || undefined,
           history: turns
             .filter((t) => !t.error)
             .map((t) => ({ role: t.role, content: t.content })),
@@ -58,13 +59,11 @@ export default function MentorChat({ ideaId, ideaTitle }: { ideaId: string; idea
   }
 
   return (
-    <section className="cell span-wide">
-      <div className="cell-label">Mentor chat · {ideaTitle}</div>
-
+    <div>
       <div style={{ display: "grid", gap: 10 }}>
         {turns.length === 0 && (
           <div className="empty-state">
-            Ask about scope, skills, stack, timeline — or what the examiner will probe.
+            Ask about scope, skills, stack, timeline, improvements — or what the examiner will probe.
           </div>
         )}
         {turns.map((t, i) => (
@@ -75,7 +74,7 @@ export default function MentorChat({ ideaId, ideaTitle }: { ideaId: string; idea
         ))}
       </div>
 
-      <form onSubmit={onSend} className="chat-form">
+      <form onSubmit={onSend} className="chat-form" style={{ marginTop: 12 }}>
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -86,7 +85,7 @@ export default function MentorChat({ ideaId, ideaTitle }: { ideaId: string; idea
           {pending ? "Thinking…" : "Ask"}
         </button>
       </form>
-      {error && <div className="form-error">{error}</div>}
-    </section>
+      {error && <div className="form-error" style={{ marginTop: 12 }}>{error}</div>}
+    </div>
   );
 }

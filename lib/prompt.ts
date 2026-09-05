@@ -1,4 +1,4 @@
-import type { GenerateInput, Idea, MentorIntent, MentorMessage } from "./types.ts";
+import type { GenerateInput, Idea, MentorIntent, MentorMessage } from "../src/lib/types.ts";
 
 export function buildGeneratePrompt(input: GenerateInput): { system: string; user: string } {
   const system =

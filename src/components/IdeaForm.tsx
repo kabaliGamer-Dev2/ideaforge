@@ -1,32 +1,18 @@
-"use client";
-
 import { useState, type FormEvent } from "react";
+import { getSessionId } from "@/lib/session";
+import { getApiKey } from "@/lib/apikey";
+import type { ClientIdea } from "@/lib/types";
 
-export interface GenerateRequest {
+export interface GenerateResult {
+  ideas: ClientIdea[];
+  source: "llm" | "fallback";
+  provider: string | null;
   interests: string[];
   skills: string[];
-  difficulty: "beginner" | "intermediate" | "advanced";
-  duration_weeks: number;
-  count: number;
 }
 
 interface Props {
-  onGenerated: (ideas: Idea[], source: "llm" | "fallback", input: { interests: string[]; skills: string[] }) => void;
-}
-
-export interface Idea {
-  id: string;
-  title: string;
-  domain: string;
-  summary: string;
-  why_fits: string;
-  difficulty: string;
-  duration_weeks: number;
-  features: string[];
-  stack: string[];
-  skills_used: string[];
-  roadmap: string[];
-  fit?: { matched_interests: string[]; matched_skills: string[]; band: string };
+  onGenerated: (result: GenerateResult) => void;
 }
 
 function splitTags(value: string): string[] {
@@ -61,14 +47,22 @@ export default function IdeaForm({ onGenerated }: Props) {
           difficulty,
           duration_weeks: Math.max(1, Math.min(52, Number(weeks) || 12)),
           count: Math.max(1, Math.min(20, Number(count) || 4)),
-        } satisfies GenerateRequest),
+          session_id: getSessionId(),
+          user_api_key: getApiKey() || undefined,
+        }),
       });
       const body = await res.json();
       if (!res.ok || !body.ok) {
         setError(body.message ?? "Something went wrong. Try again.");
         return;
       }
-      onGenerated(body.ideas, body.source, { interests: interestTags, skills: skillTags });
+      onGenerated({
+        ideas: body.ideas,
+        source: body.source,
+        provider: body.provider ?? null,
+        interests: interestTags,
+        skills: skillTags,
+      });
     } catch {
       setError("Could not reach the server. Check your connection and try again.");
     } finally {
@@ -134,7 +128,7 @@ export default function IdeaForm({ onGenerated }: Props) {
           />
         </div>
       </div>
-      {error && <div className="form-error">{error}</div>}
+      {error && <div className="form-error" style={{ marginTop: 14 }}>{error}</div>}
       <div className="form-actions">
         <button type="submit" disabled={pending}>
           {pending ? "Generating…" : "Generate ideas"}
