@@ -11,6 +11,7 @@ export default function Home() {
   const [source, setSource] = useState<"llm" | "fallback">("fallback");
   const [lastInput, setLastInput] = useState<{ interests: string[]; skills: string[] }>({ interests: [], skills: [] });
   const [savedId, setSavedId] = useState<string | null>(null);
+  const [savedClientId, setSavedClientId] = useState<string | null>(null);
   const [savedTitle, setSavedTitle] = useState("");
   const [saving, setSaving] = useState<string | null>(null);
   const [saveError, setSaveError] = useState("");
@@ -30,6 +31,7 @@ export default function Home() {
         return;
       }
       setSavedId(body.id);
+      setSavedClientId(idea.id);
       setSavedTitle(idea.title);
     } catch {
       setSaveError("Could not reach the server. Try again.");
@@ -55,6 +57,8 @@ export default function Home() {
           setSource(newSource);
           setLastInput(input);
           setSavedId(null);
+          setSavedClientId(null);
+          setSavedTitle("");
         }}
       />
 
@@ -66,7 +70,7 @@ export default function Home() {
         interests={lastInput.interests}
         skills={lastInput.skills}
         onSave={onSave}
-        savedId={savedId}
+        savedClientId={savedClientId}
         savingId={saving}
       />
 

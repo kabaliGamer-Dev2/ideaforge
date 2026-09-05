@@ -35,11 +35,15 @@ export async function POST(req: Request) {
   let history: MentorMessage[] = [];
   if (Array.isArray(b.history)) {
     history = b.history
-      .filter(
-        (h): h is MentorMessage =>
-          typeof h === "object" && h !== null &&
-          (h as MentorMessage).role === "user" || ((h as MentorMessage).role === "assistant" && typeof (h as MentorMessage).content === "string")
-      )
+      .filter((h): h is MentorMessage => {
+        if (typeof h !== "object" || h === null) return false;
+        const m = h as Partial<MentorMessage>;
+        return (
+          (m.role === "user" || m.role === "assistant") &&
+          typeof m.content === "string" &&
+          m.content.length > 0
+        );
+      })
       .slice(-MAX_HISTORY);
   }
 

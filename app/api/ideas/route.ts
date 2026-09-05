@@ -95,7 +95,11 @@ export async function GET(req: Request) {
         { status: 500 }
       );
     }
-    return NextResponse.json({ ok: true, count: data.length, ideas: data });
+    const ideas = data.map((row: Record<string, unknown>) => {
+      const { score: _score, ...rest } = row;
+      return rest;
+    });
+    return NextResponse.json({ ok: true, count: data.length, ideas });
   } catch (err) {
     console.log(`[ideas] supabase error: ${(err as Error).message}`);
     return NextResponse.json(

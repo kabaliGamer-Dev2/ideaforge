@@ -9,7 +9,7 @@ export default function ResultsList({
   interests,
   skills,
   onSave,
-  savedId,
+  savedClientId,
   savingId,
 }: {
   ideas: Idea[];
@@ -17,7 +17,7 @@ export default function ResultsList({
   interests: string[];
   skills: string[];
   onSave?: (idea: Idea) => void;
-  savedId?: string | null;
+  savedClientId?: string | null;
   savingId?: string | null;
 }) {
   if (ideas.length === 0) {
@@ -50,7 +50,7 @@ export default function ResultsList({
             key={idea.id}
             idea={idea}
             onSave={onSave}
-            saved={savedId !== null}
+            saved={savedClientId === idea.id}
             saving={savingId === idea.id}
           />
         ))}
