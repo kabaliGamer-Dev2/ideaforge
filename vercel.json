@@ -1,6 +1,6 @@
 {
   "framework": "express",
   "functions": {
-    "index.mjs": { "includeFiles": ["lib/**", "src/lib/**", "dist/**"] }
+    "index.mjs": { "includeFiles": "{lib,src/lib,dist}/**" }
   }
 }
