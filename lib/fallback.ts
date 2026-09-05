@@ -27,7 +27,7 @@ const TEMPLATES: Template[] = [
   {
     domain: "education",
     keywords: ["education", "learning", "student", "course", "study", "exam", "college", "school", "tutor"],
-    title: (i) => `Personalised Study Planner & Progress Tracker`,
+    title: () => `Personalised Study Planner & Progress Tracker`,
     summary: (i) =>
       `Turns a syllabus into a week-by-week study plan, tracks completion, and flags topics falling behind — built around your ${i[0] ?? "education"} interest.`,
     features: ["Syllabus-to-schedule converter", "Weekly completion tracking", "At-risk topic detection", "Revision queue"],
@@ -36,7 +36,7 @@ const TEMPLATES: Template[] = [
   {
     domain: "agriculture",
     keywords: ["agriculture", "farm", "crop", "soil", "farming", "irrigation", "agri"],
-    title: (i) => `Crop Advisory & Field Log Dashboard`,
+    title: () => `Crop Advisory & Field Log Dashboard`,
     summary: (i) =>
       `A dashboard that logs field observations, tracks water and fertiliser schedules, and flags weather-based advisories — personalised with your ${i[0] ?? "agriculture"} interest.`,
     features: ["Field observation log", "Irrigation schedule tracker", "Weather advisory flags", "Season summary report"],
@@ -45,7 +45,7 @@ const TEMPLATES: Template[] = [
   {
     domain: "finance",
     keywords: ["finance", "budget", "money", "bank", "expense", "investment", "wallet", "payment"],
-    title: (i) => `Expense Insight & Budget Coach`,
+    title: () => `Expense Insight & Budget Coach`,
     summary: (i) =>
       `Categorises expenses, detects spending drift, and suggests a realistic budget — a practical ${i[0] ?? "finance"} project you can demo with real data.`,
     features: ["Expense categorisation", "Spending drift alerts", "Budget builder", "Monthly insight report"],
@@ -54,7 +54,7 @@ const TEMPLATES: Template[] = [
   {
     domain: "logistics",
     keywords: ["logistics", "delivery", "fleet", "supply", "transport", "courier", "shipment"],
-    title: (i) => `Delivery Route Optimiser for Local Couriers`,
+    title: () => `Delivery Route Optimiser for Local Couriers`,
     summary: (i) =>
       `Sequences daily delivery stops to minimise travel, with a driver view and dispatch view — a ${i[0] ?? "logistics"} problem with a measurable outcome.`,
     features: ["Stop sequencing with route order", "Driver dispatch view", "Distance/time estimates", "Daily run summary"],
@@ -63,7 +63,7 @@ const TEMPLATES: Template[] = [
   {
     domain: "sustainability",
     keywords: ["sustainability", "environment", "green", "carbon", "waste", "recycle", "energy", "climate"],
-    title: (i) => `Campus Energy & Waste Tracker`,
+    title: () => `Campus Energy & Waste Tracker`,
     summary: (i) =>
       `Monitors campus electricity and waste streams, surfaces anomalies, and sets reduction targets — aligned with your ${i[0] ?? "sustainability"} interest.`,
     features: ["Energy consumption log", "Waste stream tracking", "Anomaly flags", "Reduction target board"],
@@ -72,7 +72,7 @@ const TEMPLATES: Template[] = [
   {
     domain: "accessibility",
     keywords: ["accessibility", "disability", "inclusive", "blind", "deaf", "assistive", "a11y"],
-    title: (i) => `Assistive Reading Companion for Low-Vision Users`,
+    title: () => `Assistive Reading Companion for Low-Vision Users`,
     summary: (i) =>
       `Reads uploaded text aloud at a comfortable rate with adjustable contrast and font size — an ${i[0] ?? "accessibility"} project with an obvious user and a defensible scope.`,
     features: ["Text upload and reading view", "Rate and contrast controls", "Session bookmarks", "Reading progress"],
