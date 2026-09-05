@@ -57,7 +57,7 @@ const suggestCount = await page.locator(".picker-suggest button").count();
 check("interest suggestions shown", suggestCount >= 4, `got ${suggestCount}`);
 await page.getByRole("button", { name: /^\+ / }).first().click();
 check("suggestion adds a term", (await interestInput.inputValue()).length > 0);
-const randBtn = page.getByRole("button", { name: "⤫ Random" }).first();
+const randBtn = page.getByRole("button", { name: "Random" }).first();
 await randBtn.click();
 check("random fills interests", (await interestInput.inputValue()).length > 0);
 

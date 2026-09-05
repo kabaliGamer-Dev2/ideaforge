@@ -80,12 +80,18 @@ export default function MentorChat({ ideaId, ideaTitle }: { ideaId: string; idea
           onChange={(e) => setInput(e.target.value)}
           placeholder="e.g. I don\u2019t know PyTorch yet \u2014 can I still finish in 12 weeks?"
           disabled={pending}
+          aria-label="Ask the mentor"
         />
-        <button type="submit" disabled={pending || input.trim().length === 0}>
-          {pending ? "Thinking…" : "Ask"}
+        <button type="submit" className="btn btn-primary" disabled={pending || input.trim().length === 0} aria-busy={pending}>
+          {pending ? "Thinking" : "Ask"}
         </button>
       </form>
-      {error && <div className="form-error" style={{ marginTop: 12 }}>{error}</div>}
+      {error && (
+        <div className="form-error" style={{ marginTop: 12 }} role="alert">
+          <span aria-hidden="true">▲</span>
+          <span>{error}</span>
+        </div>
+      )}
     </div>
   );
 }

@@ -131,10 +131,15 @@ export default function IdeaForm({ onGenerated }: { onGenerated: (r: GenerateRes
           />
         </div>
       </div>
-      {error && <div className="form-error" style={{ marginTop: 14 }}>{error}</div>}
+      {error && (
+        <div className="form-error" style={{ marginTop: 14 }} role="alert">
+          <span aria-hidden="true">▲</span>
+          <span>{error}</span>
+        </div>
+      )}
       <div className="form-actions">
-        <button type="submit" disabled={pending}>
-          {pending ? "Generating…" : "Generate ideas"}
+        <button type="submit" className="btn btn-cta" disabled={pending} aria-busy={pending}>
+          {pending ? "Generating" : "Generate ideas"}
         </button>
         {pending && <span className="pending">working</span>}
       </div>

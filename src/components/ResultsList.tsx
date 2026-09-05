@@ -39,7 +39,8 @@ export default function ResultsList({
 
       {source === "fallback" && (
         <div className="fallback-notice">
-          Generated offline from templates. The AI service is unavailable.
+          <span className="tag">offline</span>
+          <span>Generated from templates. The AI service is unavailable.</span>
         </div>
       )}
 

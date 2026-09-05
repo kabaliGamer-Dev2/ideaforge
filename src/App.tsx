@@ -128,7 +128,12 @@ export default function App() {
         />
       )}
 
-      {saveError && <div className="form-error" style={{ marginTop: 18 }}>{saveError}</div>}
+      {saveError && (
+        <div className="form-error" style={{ marginTop: 18 }} role="alert">
+          <span aria-hidden="true">▲</span>
+          <span>{saveError}</span>
+        </div>
+      )}
 
       {savedId !== null && (
         <section style={{ marginTop: 26 }}>

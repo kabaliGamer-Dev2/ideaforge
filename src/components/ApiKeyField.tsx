@@ -29,12 +29,13 @@ export default function ApiKeyField() {
           placeholder="AIza… (Gemini API key, optional)"
           spellCheck={false}
           autoComplete="off"
+          aria-label="Gemini API key"
         />
-        <button type="submit">{saved ? "Update key" : "Use my key"}</button>
+        <button type="submit" className="btn btn-ghost">{saved ? "Update key" : "Use my key"}</button>
         {saved && (
           <button
             type="button"
-            className="ghost"
+            className="btn btn-ghost"
             onClick={() => {
               setApiKey("");
               setValue("");

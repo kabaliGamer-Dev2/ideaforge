@@ -10,7 +10,7 @@ export default function ModelPicker({ value, onChange }: {
   const [picked, setPicked] = useState<ModelChoice>(() => {
     if (typeof window === "undefined") return "auto";
     const stored = sessionStorage.getItem(MODEL_KEY);
-    return stored === "nvidia" || stored === "gemini" ? stored : "auto";
+    return stored === "nvidia" || stored === "gemini" || stored === "zen" ? stored : "auto";
   });
   const active = value === "auto" ? picked : value;
 
@@ -24,6 +24,7 @@ export default function ModelPicker({ value, onChange }: {
 
   const options: { id: ModelChoice; label: string; note: string }[] = [
     { id: "auto", label: "Auto", note: "best available provider" },
+    { id: "zen", label: "OpenCode Zen", note: "mimo-v2.5-free" },
     { id: "gemini", label: "Gemini", note: "your key or the server's" },
     { id: "nvidia", label: "NVIDIA", note: "nemotron-3-super-120b-a12b" },
   ];

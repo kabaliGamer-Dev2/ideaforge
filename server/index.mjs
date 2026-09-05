@@ -100,7 +100,7 @@ app.post("/api/generate", async (req, res) => {
     typeof req.body?.user_api_key === "string" && req.body.user_api_key.trim().length > 0
       ? req.body.user_api_key.trim()
       : undefined;
-  const userModel = ["nvidia", "gemini", "auto"].includes(req.body?.user_model) ? req.body.user_model : "auto";
+  const userModel = ["nvidia", "gemini", "zen", "auto"].includes(req.body?.user_model) ? req.body.user_model : "auto";
 
   let source = "llm";
   let provider = null;
@@ -322,7 +322,7 @@ app.post("/api/research", async (req, res) => {
 
   const userGeminiKey =
     typeof b.user_api_key === "string" && b.user_api_key.trim().length > 0 ? b.user_api_key.trim() : undefined;
-  const userModel = ["nvidia", "gemini", "auto"].includes(b.user_model) ? b.user_model : "auto";
+  const userModel = ["nvidia", "gemini", "zen", "auto"].includes(b.user_model) ? b.user_model : "auto";
 
   const { system, user } = buildResearchPrompt(input, idea);
   const llmResult = await callLlm(system, user, userGeminiKey, userModel, 12000);
@@ -373,7 +373,7 @@ app.post("/api/project-files", async (req, res) => {
 
   const userGeminiKey =
     typeof b.user_api_key === "string" && b.user_api_key.trim().length > 0 ? b.user_api_key.trim() : undefined;
-  const userModel = ["nvidia", "gemini", "auto"].includes(b.user_model) ? b.user_model : "auto";
+  const userModel = ["nvidia", "gemini", "zen", "auto"].includes(b.user_model) ? b.user_model : "auto";
 
   const { system, user } = buildProjectFilesPrompt(input, idea, research);
   const llmResult = await callLlm(system, user, userGeminiKey, userModel, 12000);

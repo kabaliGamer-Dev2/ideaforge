@@ -1,7 +1,7 @@
 export const VALID_DIFFICULTY = ["low", "beginner", "medium", "high", "advanced"] as const;
 export type Difficulty = (typeof VALID_DIFFICULTY)[number];
 
-export type ModelChoice = "auto" | "gemini" | "nvidia";
+export type ModelChoice = "auto" | "gemini" | "nvidia" | "zen";
 
 export interface ResearchDossier {
   summary: string;

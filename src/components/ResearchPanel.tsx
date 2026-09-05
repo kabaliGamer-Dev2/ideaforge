@@ -75,17 +75,25 @@ export default function ResearchPanel({ idea, profile }: {
   return (
     <div style={{ display: "grid", gap: 10 }}>
       <div className="chiprow">
-        <button type="button" onClick={research} disabled={pending}>
-          {pending ? "Researching…" : dossier ? "Re-run research" : "Research & advance"}
+        <button type="button" className="btn btn-primary" onClick={research} disabled={pending} aria-busy={pending}>
+          {pending ? "Researching" : dossier ? "Re-run research" : "Research & advance"}
         </button>
-        <button type="button" className="ghost" onClick={getFiles} disabled={filesPending || (!dossier && files === null)}>
-          {filesPending ? "Generating…" : "Full project files"}
+        <button type="button" className="btn btn-ghost" onClick={getFiles} disabled={filesPending || (!dossier && files === null)} aria-busy={filesPending}>
+          {filesPending ? "Generating" : "Full project files"}
         </button>
       </div>
       {source === "fallback" && dossier && (
-        <div className="fallback-notice">Research served offline — the AI service is unavailable.</div>
+        <div className="fallback-notice">
+          <span className="tag">offline</span>
+          <span>Research served from templates — the AI service is unavailable.</span>
+        </div>
       )}
-      {error && <div className="form-error">{error}</div>}
+      {error && (
+        <div className="form-error" role="alert">
+          <span aria-hidden="true">▲</span>
+          <span>{error}</span>
+        </div>
+      )}
       {dossier && (
         <div className="dossier">
           <div className="idea-block-label">Research dossier</div>

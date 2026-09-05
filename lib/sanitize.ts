@@ -10,38 +10,35 @@ function isPlainObject(v: unknown): v is Record<string, unknown> {
 export function parseJsonObject(text: string): Record<string, unknown> | null {
   if (typeof text !== "string") return null;
 
+  // Strip <think>...</think> tags if present (reasoning models)
+  let cleanText = text.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+
   // Stage 1: direct parse, accept only a non-null, non-array object.
   try {
-    const parsed = JSON.parse(text.trim());
+    const parsed = JSON.parse(cleanText);
     if (isPlainObject(parsed)) return parsed;
   } catch {
     /* fall through to stage 2 */
   }
 
-  const trimmed = text.trim();
-
-  // Stage 2: code-fenced block.
-  if (trimmed.startsWith("```")) {
-    const end = trimmed.indexOf("```", 3);
-    if (end !== -1) {
-      let inner = trimmed.slice(3, end).trim();
-      if (inner.startsWith("json")) inner = inner.slice(4).trim();
-      try {
-        const parsed = JSON.parse(inner);
-        if (isPlainObject(parsed)) return parsed;
-      } catch {
-        /* fall through to stage 3 */
-      }
+  // Stage 2: code-fenced block anywhere in the text.
+  const fenceMatch = cleanText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+  if (fenceMatch && fenceMatch[1]) {
+    try {
+      const parsed = JSON.parse(fenceMatch[1].trim());
+      if (isPlainObject(parsed)) return parsed;
+    } catch {
+      /* fall through to stage 3 */
     }
   }
 
-  // Stage 3: first balanced {...} region, string-aware brace-depth scan.
+  // Stage 3: balanced {...} region, string-aware brace-depth scan.
   let depth = 0;
   let inString = false;
   let escaped = false;
   let start = -1;
-  for (let i = 0; i < trimmed.length; i++) {
-    const ch = trimmed[i];
+  for (let i = 0; i < cleanText.length; i++) {
+    const ch = cleanText[i];
     if (inString) {
       if (escaped) {
         escaped = false;
@@ -60,12 +57,13 @@ export function parseJsonObject(text: string): Record<string, unknown> | null {
     } else if (ch === "}") {
       depth--;
       if (depth === 0 && start !== -1) {
-        const candidate = trimmed.slice(start, i + 1);
+        const candidate = cleanText.slice(start, i + 1);
         try {
           const parsed = JSON.parse(candidate);
           if (isPlainObject(parsed)) return parsed;
         } catch {
-          return null;
+          // Continue scanning for subsequent valid JSON objects
+          start = -1;
         }
       }
     }

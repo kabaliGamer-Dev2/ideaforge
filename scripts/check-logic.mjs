@@ -12,8 +12,11 @@ function test(name, fn) {
 test("parse: clean object", () => assert.deepEqual(parseJsonObject('{"a":1}'), { a: 1 }));
 test("parse: fenced with json tag", () => assert.deepEqual(parseJsonObject('```json\n{"ideas":[]}\n```'), { ideas: [] }));
 test("parse: fenced without tag", () => assert.deepEqual(parseJsonObject('```\n{"a":2}\n```'), { a: 2 }));
+test("parse: preamble before fenced block", () => assert.deepEqual(parseJsonObject('Here is your plan:\n```json\n{"ideas":[{"title":"Test"}]}\n```\nHope it helps!'), { ideas: [{ title: "Test" }] }));
+test("parse: think tags stripped", () => assert.deepEqual(parseJsonObject('<think>Thinking about {a: 1} braces and logic...</think>\n{"result":"ok"}'), { result: "ok" }));
 test("parse: prose around object", () => assert.deepEqual(parseJsonObject('Here!\n{"a":3}\nDone.'), { a: 3 }));
 test("parse: string-aware brace {\"a\":\"}\"}", () => assert.deepEqual(parseJsonObject('{"a":"}"}'), { a: "}" }));
+test("parse: recover from invalid braces before valid JSON", () => assert.deepEqual(parseJsonObject('Note: {invalid brace here} but here is the object: {"valid":true}'), { valid: true }));
 test("parse: top-level array is null", () => assert.equal(parseJsonObject("[1,2,3]"), null));
 test("parse: unbalanced braces are null", () => assert.equal(parseJsonObject('{"a":1'), null));
 test("parse: empty is null", () => assert.equal(parseJsonObject(""), null));

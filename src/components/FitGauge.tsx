@@ -8,7 +8,7 @@ export default function FitGauge({ band }: { band: string }) {
           <div key={i} className={`seg${i < filled ? " on" : ""}`} />
         ))}
       </div>
-      <span className="fit-band">{band}</span>
+      <span className={`fit-band ${band}`}>{band}</span>
     </div>
   );
 }

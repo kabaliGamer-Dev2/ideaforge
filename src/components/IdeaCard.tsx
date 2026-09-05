@@ -16,6 +16,7 @@ export default function IdeaCard({ idea, rank, featured, saved, onSave, saving }
 
   return (
     <article className={`idea${featured ? " featured" : ""}`}>
+      {featured && <div className="top-pick">Top pick</div>}
       <div className="idea-meta">
         <span>{idea.domain} · {idea.difficulty} · {idea.duration_weeks} weeks</span>
         <span className="idea-rank">{String(rank).padStart(2, "0")}</span>
@@ -82,11 +83,24 @@ export default function IdeaCard({ idea, rank, featured, saved, onSave, saving }
       {onSave && (
         <button
           type="button"
+          className={`btn ${saved ? "btn-success" : "btn-primary"}`}
           onClick={() => onSave(idea.id, idea.title)}
           disabled={saved || saving}
+          aria-busy={saving}
           style={{ marginTop: "auto", alignSelf: "flex-start" }}
         >
-          {saved ? "Saved — mentor ready" : saving ? "Saving…" : "Save & ask mentor"}
+          {saved ? (
+            <>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              Saved — mentor ready
+            </>
+          ) : saving ? (
+            "Saving"
+          ) : (
+            "Save & ask mentor"
+          )}
         </button>
       )}
     </article>
