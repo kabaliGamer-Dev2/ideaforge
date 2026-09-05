@@ -1,7 +1,7 @@
 import express from "express";
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { randomUUID } from "node:crypto";
 import { VALID_DIFFICULTY } from "../src/lib/types.ts";
 import { parseJsonObject, sanitizeIdea, rankIdeas } from "../lib/sanitize.ts";
@@ -421,6 +421,12 @@ app.get("*", (req, res, next) => {
   res.sendFile(path.join(dist, "index.html"), (err) => err && next());
 });
 
-app.listen(PORT, () => {
-  console.log(`[ideaforge] server on :${PORT} (db:${dbConfigured() ? "on" : "off"})`);
-});
+// Only listen when executed directly (not in serverless environment like Vercel)
+if (process.env.VERCEL !== "1") {
+  app.listen(PORT, () => {
+    console.log(`[ideaforge] server on :${PORT} (db:${dbConfigured() ? "on" : "off"})`);
+  });
+}
+
+export { app };
+export default app;
