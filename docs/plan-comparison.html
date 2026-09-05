@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IdeaForge — Plan Showdown: v1 vs 2.0</title>
+<style>
+  :root {
+    --paper: #EDEFE7;
+    --ink: #16202B;
+    --amber: #F2B33D;
+    --stamp: #B23A48;
+    --teal: #2F6F6B;
+    --line: rgba(22, 32, 43, 0.16);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; border-radius: 0 !important; }
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image:
+      repeating-linear-gradient(0deg, rgba(22,32,43,0.045) 0px, rgba(22,32,43,0.045) 1px, transparent 1px, transparent 28px),
+      repeating-linear-gradient(90deg, rgba(22,32,43,0.045) 0px, rgba(22,32,43,0.045) 1px, transparent 1px, transparent 28px);
+    min-height: 100vh;
+    padding: 48px 24px 64px;
+  }
+  .mono { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+
+  header { border-bottom: 2px solid var(--ink); padding-bottom: 18px; margin-bottom: 34px; }
+  .kicker { font-family: ui-monospace, monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+  h1 { font-size: 34px; font-weight: 700; letter-spacing: -0.01em; }
+  .sub { font-family: ui-monospace, monospace; font-size: 13px; color: rgba(22,32,43,0.66); margin-top: 8px; }
+  .date { font-family: ui-monospace, monospace; font-size: 12px; color: rgba(22,32,43,0.5); margin-top: 4px; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  @media (max-width: 860px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .plan {
+    border: 1.5px solid var(--ink);
+    background: rgba(237, 239, 231, 0.92);
+    padding: 22px 22px 20px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .plan.leader { border-color: var(--teal); border-width: 2.5px; }
+  .plan-head { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+  .plan-name { font-family: ui-monospace, monospace; font-size: 16px; font-weight: 700; letter-spacing: 0.06em; }
+  .plan-badge { font-family: ui-monospace, monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; padding: 3px 8px; border: 1.5px solid var(--ink); }
+  .plan.leader .plan-badge { border-color: var(--teal); color: var(--teal); }
+  .plan-desc { font-size: 14.5px; line-height: 1.55; color: rgba(22,32,43,0.86); min-height: 66px; }
+  .plan-desc em { font-style: italic; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat { border: 1px solid var(--line); padding: 9px 11px; }
+  .stat-label { font-family: ui-monospace, monospace; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(22,32,43,0.55); }
+  .stat-value { font-family: ui-monospace, monospace; font-size: 20px; font-weight: 700; margin-top: 3px; }
+
+  .gauge-label { display: flex; justify-content: space-between; font-family: ui-monospace, monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+  .gauge { display: flex; gap: 3px; }
+  .seg { flex: 1; height: 12px; background: rgba(22,32,43,0.12); }
+  .seg.on { background: var(--amber); }
+  .plan.leader .seg.on { background: var(--teal); }
+  .gauge-caption { font-family: ui-monospace, monospace; font-size: 10.5px; color: rgba(22,32,43,0.55); margin-top: 6px; }
+
+  h2 { font-size: 20px; margin: 40px 0 16px; }
+  h2 .mono { font-size: 13px; color: var(--teal); letter-spacing: 0.12em; }
+
+  table { width: 100%; border-collapse: collapse; border: 1.5px solid var(--ink); background: rgba(237,239,231,0.92); }
+  th { font-family: ui-monospace, monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; text-align: left; padding: 10px 12px; border-bottom: 1.5px solid var(--ink); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--line); font-size: 14px; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td.dim { font-family: ui-monospace, monospace; font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+  .win { color: var(--teal); font-family: ui-monospace, monospace; font-weight: 700; }
+  .lose { color: var(--stamp); font-family: ui-monospace, monospace; font-weight: 700; }
+  .tie { color: var(--ink); font-family: ui-monospace, monospace; font-weight: 700; }
+
+  .verdict {
+    margin-top: 36px; border: 2.5px solid var(--teal); background: rgba(47, 111, 107, 0.07);
+    padding: 24px 26px;
+  }
+  .verdict h3 { font-size: 17px; margin-bottom: 10px; }
+  .verdict h3 .mono { color: var(--teal); }
+  .verdict p { font-size: 14.5px; line-height: 1.65; margin-bottom: 10px; }
+  .verdict p:last-child { margin-bottom: 0; }
+  .verdict ul { margin: 10px 0 12px 20px; }
+  .verdict li { font-size: 14px; line-height: 1.6; margin-bottom: 4px; }
+  .verdict li b { font-family: ui-monospace, monospace; font-size: 13px; }
+
+  .hybrid { margin-top: 22px; border: 1.5px solid var(--amber); padding: 20px 24px; background: rgba(242, 179, 61, 0.08); }
+  .hybrid h3 { font-size: 16px; margin-bottom: 10px; }
+  .hybrid p { font-size: 14.5px; line-height: 1.65; }
+
+  .note { margin-top: 30px; font-family: ui-monospace, monospace; font-size: 11.5px; color: rgba(22,32,43,0.5); line-height: 1.7; }
+  .scoreline { display: flex; align-items: baseline; justify-content: space-between; margin-top: 14px; border-top: 1px solid var(--line); padding-top: 12px; }
+  .scoreline .mono { font-size: 26px; font-weight: 700; }
+  .plan.leader .scoreline .mono { color: var(--teal); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">Planning Decision · 2026-09-05 · 3-Hour Budget</div>
+    <h1>IdeaForge — Plan Showdown</h1>
+    <div class="sub">Which plan has the highest success ratio? Two candidates, one clock.</div>
+    <div class="date">Sources: <span class="mono">docs/00–07</span> (v1) &nbsp;·&nbsp; <span class="mono">docs/update 2-o plan/00–05</span> (2.0)</div>
+  </header>
+
+  <section class="grid-2">
+    <div class="plan">
+      <div class="plan-head">
+        <span class="plan-name">PLAN A — v1</span>
+        <span class="plan-badge">Challenger</span>
+      </div>
+      <div class="plan-desc">
+        Fork <em>vercel/ai-chatbot</em>, strip it, stream LLM ideas + mentor chat.
+        <br>Single path: <em>no fallback</em> if the AI is down.
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Base</div><div class="stat-value">Fork + AI SDK</div></div>
+        <div class="stat"><div class="stat-label">Persistence</div><div class="stat-value">None / session</div></div>
+        <div class="stat"><div class="stat-label">Fallback</div><div class="stat-value" style="color:var(--stamp)">None</div></div>
+        <div class="stat"><div class="stat-label">Verification</div><div class="stat-value" style="color:var(--stamp)">None</div></div>
+      </div>
+      <div class="gauge-label"><span>Success ratio</span><span>48 / 100</span></div>
+      <div class="gauge">
+        <div class="seg on"></div><div class="seg on"></div><div class="seg on"></div><div class="seg on"></div><div class="seg on"></div>
+        <div class="seg on"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div>
+        <div class="seg"></div><div class="seg"></div>
+      </div>
+      <div class="gauge-caption">4/12 segments — one failure point (the LLM) is the entire demo</div>
+    </div>
+
+    <div class="plan leader">
+      <div class="plan-head">
+        <span class="plan-name">PLAN B — 2.0</span>
+        <span class="plan-badge">Winner</span>
+      </div>
+      <div class="plan-desc">
+        From-scratch Next.js, <em>dual-path</em> LLM + deterministic fallback, Supabase save + mentor chat.
+        <br>Working product by minute 110, AI or no AI.
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Base</div><div class="stat-value">Scaffold + lib/</div></div>
+        <div class="stat"><div class="stat-label">Persistence</div><div class="stat-value">Supabase RLS</div></div>
+        <div class="stat"><div class="stat-label">Fallback</div><div class="stat-value" style="color:var(--teal)">Dual-path</div></div>
+        <div class="stat"><div class="stat-label">Verification</div><div class="stat-value" style="color:var(--teal)">27 FR + tests</div></div>
+      </div>
+      <div class="gauge-label"><span>Success ratio</span><span>86 / 100</span></div>
+      <div class="gauge">
+        <div class="seg on"></div><div class="seg on"></div><div class="seg on"></div><div class="seg on"></div><div class="seg on"></div>
+        <div class="seg on"></div><div class="seg on"></div><div class="seg on"></div><div class="seg on"></div><div class="seg on"></div>
+        <div class="seg on"></div><div class="seg"></div>
+      </div>
+      <div class="gauge-caption">11/12 segments — the demo survives provider failure, cold starts, even no internet</div>
+    </div>
+  </section>
+
+  <h2>1. Head-to-head — <span class="mono">10 dimensions</span></h2>
+  <table>
+    <thead>
+      <tr><th>Dimension</th><th>Plan A — v1</th><th>Plan B — 2.0</th><th>Winner</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="dim">Guaranteed demo</td><td>None — LLM down = dead demo</td><td>Deterministic template engine behind same API</td><td class="win">B</td></tr>
+      <tr><td class="dim">Deploy risk caught</td><td>Deploy near the end</td><td>Empty app deployed by T+15, env verified by T+30</td><td class="win">B</td></tr>
+      <tr><td class="dim">Logic verification</td><td>None — JSON parsing unvalidated</td><td>Plain-node assertion script, verified by T+60</td><td class="win">B</td></tr>
+      <tr><td class="dim">Scaffold speed</td><td>Fork saves ~1.5 h</td><td>From scratch, no fork friction</td><td class="win">A</td></tr>
+      <tr><td class="dim">Wow factor (streaming)</td><td>Streaming chat — feels alive</td><td>Static responses, no streaming</td><td class="win">A</td></tr>
+      <tr><td class="dim">Robustness of output</td><td>Prompt-only, fragile JSON</td><td>3-stage extractor + sanitise + discard rules (FR-7…14)</td><td class="win">B</td></tr>
+      <tr><td class="dim">Acceptance criteria</td><td>None written</td><td>5 acceptance tests incl. unplug-the-AI test</td><td class="win">B</td></tr>
+      <tr><td class="dim">Persistence</td><td>Session state only</td><td>Supabase save + reload + grounded chat (RLS, 0 policies)</td><td class="win">B</td></tr>
+      <tr><td class="dim">Differentiator strength</td><td>Personalised mentor</td><td>Explainable ranking + dual-path degradation</td><td class="win">B</td></tr>
+      <tr><td class="dim">Complexity / risk</td><td>Low, but single point of failure</td><td>Medium — mitigated by checkpoint gates + cut list</td><td class="tie">—</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. Failure-mode analysis — <span class="mono">what kills the demo</span></h2>
+  <table>
+    <thead>
+      <tr><th>Failure mode</th><th>Plan A — v1</th><th>Plan B — 2.0</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="dim">LLM provider down / key expired</td><td class="lose">FATAL — nothing renders</td><td class="win">200 + fallback content, logged</td></tr>
+      <tr><td class="dim">Fork won't install / auth strip breaks</td><td class="lose">Loses the 1.5 h savings, replan</td><td class="win">No fork dependency</td></tr>
+      <tr><td class="dim">Model returns garbage JSON</td><td class="lose">Crash or blank cards</td><td class="win">Extract → sanitise → discard → rank</td></tr>
+      <tr><td class="dim">Vercel deploy config wrong</td><td class="lose">Discovered at T+165</td><td class="win">Discovered at T+15</td></tr>
+      <tr><td class="dim">Demo laptop offline</td><td class="lose">Nothing works</td><td class="win">Full product locally, key empty</td></tr>
+    </tbody>
+  </table>
+
+  <div class="verdict">
+    <h3>VERDICT — <span class="mono">PLAN B (2.0) WINS: 86 vs 48</span></h3>
+    <p>Both plans can ship. The difference is <b>what the demo survives</b>. Plan A's entire demo hangs on one third-party provider staying healthy for five minutes; Plan B treats that provider as optional by design.</p>
+    <ul>
+      <li><b>B — Dual-path fallback</b>: the single biggest ratio swing. Unplug the AI and the product still works — which is also the most impressive demo moment a panel can see.</li>
+      <li><b>B — Deploy-first (T+15)</b>: the one failure mode you can't debug quickly is caught in the first 20 minutes.</li>
+      <li><b>B — Verified logic (T+60)</b>: sanitisation and ranking bugs are found by assertions, not by the audience.</li>
+      <li><b>B — Checkpoint E at T+110</b>: a complete product at a public URL with no AI in it. Everything after is upside.</li>
+      <li><b>A — Streaming wow</b>: real, but it is a garnish. A non-streaming demo that works beats a streaming demo that dies.</li>
+    </ul>
+    <p>Plan A wins only on scaffolding speed and streaming feel — neither survives contact with a dead API key.</p>
+  </div>
+
+  <div class="hybrid">
+    <h3>BEST MOVE — run Plan B, steal Plan A's garnish</h3>
+    <p>Execute Plan B exactly as written (docs <span class="mono">update 2-o plan/00–05</span>). If Checkpoint G (T+155) passes with time to spare, spend the last minutes on the one Plan A feature worth borrowing: <b>streaming the mentor reply</b> through the Vercel AI SDK on the LLM path only, keeping the fallback static. Streaming is an enhancement on top of a safe core — never the core itself.</p>
+  </div>
+
+  <div class="note">
+    Scoring method: success ratio = weighted estimate of reaching a demonstrable product at a public URL within 180 min, using the plans' own stated checkpoints, failure playbooks and cut lists. Plan A 48/100 (one-path, unverified, late deploy). Plan B 86/100 (dual-path, verified, early deploy). Remaining 14 points of Plan B risk: Supabase provisioning time and per-file agent failure — both covered by its cut list (rows: T+165 ship stateless) and the two-strikes rule.
+  </div>
+
+</div>
+</body>
+</html>
