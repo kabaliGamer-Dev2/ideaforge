@@ -81,7 +81,7 @@ const TEMPLATES: Template[] = [
   {
     domain: "civic data",
     keywords: ["civic", "public data", "government", "open data", "municipal", "city", "ward", "rti"],
-    title: (i) => `Ward-Level Civic Issue Tracker`,
+    title: () => `Ward-Level Civic Issue Tracker`,
     summary: (i) =>
       `Maps reported civic issues to ward boundaries and tracks resolution status — a ${i[0] ?? "civic data"} project that works with real open datasets.`,
     features: ["Issue reporting with ward mapping", "Resolution status tracking", "Ward comparison view", "Open-data import"],
@@ -90,7 +90,7 @@ const TEMPLATES: Template[] = [
   {
     domain: "retail",
     keywords: ["retail", "shop", "store", "inventory", "ecommerce", "e-commerce", "sales", "mall"],
-    title: (i) => `Stock Alert & Reorder Assistant for Small Shops`,
+    title: () => `Stock Alert & Reorder Assistant for Small Shops`,
     summary: (i) =>
       `Tracks inventory levels, predicts reorder points, and alerts on stock-outs — a ${i[0] ?? "retail"} project small shops would actually use.`,
     features: ["Inventory level tracking", "Reorder-point alerts", "Stock-out flags", "Reorder suggestion list"],
@@ -99,7 +99,7 @@ const TEMPLATES: Template[] = [
   {
     domain: "campus operations",
     keywords: ["campus", "college", "hostel", "library", "canteen", "attendance", "event"],
-    title: (i) => `Campus Resource Booking & Utilisation Map`,
+    title: () => `Campus Resource Booking & Utilisation Map`,
     summary: (i) =>
       `Lets students book labs, projectors, and rooms, and shows utilisation — a ${i[0] ?? "campus operations"} project with visible daily use.`,
     features: ["Resource booking flow", "Conflict prevention", "Utilisation heat view", "Booking history"],
@@ -144,7 +144,6 @@ export function generateFallbackIdeas(input: GenerateInput): Idea[] {
 
   return pool.slice(0, count).map((t) => {
     const domain = t.domain;
-    const interestTerm = interests.find((i) => t.keywords.some((k) => i.toLowerCase().includes(k) || k.includes(i.toLowerCase()))) ?? interests[0] ?? t.domain;
     const stack = [...new Set([...t.stack, ...(skills.length > 0 && !t.stack.some((s) => skills.some((sk) => sk.toLowerCase() === s.toLowerCase())) ? [skills[0]] : [])])];
     const skillsUsed = skills.filter((s) => stack.some((st) => st.toLowerCase() === s.toLowerCase()));
 
@@ -224,7 +223,7 @@ export function fallbackResearch(input: GenerateInput, idea: Idea): ResearchDoss
   };
 }
 
-export function fallbackProjectFiles(input: GenerateInput, idea: Idea, research: ResearchDossier): ProjectFiles {
+export function fallbackProjectFiles(input: GenerateInput, idea: Idea, _research: ResearchDossier): ProjectFiles {
   const weeks = Math.max(1, input.duration_weeks);
   const roadmap = idea.roadmap.length > 0 ? idea.roadmap : roadmapFor(weeks);
 
