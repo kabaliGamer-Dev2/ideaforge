@@ -8,11 +8,17 @@ export default function ResultsList({
   source,
   interests,
   skills,
+  onSave,
+  savedId,
+  savingId,
 }: {
   ideas: Idea[];
   source: "llm" | "fallback";
   interests: string[];
   skills: string[];
+  onSave?: (idea: Idea) => void;
+  savedId?: string | null;
+  savingId?: string | null;
 }) {
   if (ideas.length === 0) {
     return (
@@ -40,7 +46,13 @@ export default function ResultsList({
 
       <div className="idea-grid">
         {ideas.map((idea) => (
-          <IdeaCard key={idea.id} idea={idea} />
+          <IdeaCard
+            key={idea.id}
+            idea={idea}
+            onSave={onSave}
+            saved={savedId !== null}
+            saving={savingId === idea.id}
+          />
         ))}
       </div>
     </section>

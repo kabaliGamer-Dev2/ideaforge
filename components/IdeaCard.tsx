@@ -3,7 +3,12 @@
 import type { Idea } from "./IdeaForm";
 import FitGauge from "./FitGauge";
 
-export default function IdeaCard({ idea }: { idea: Idea }) {
+export default function IdeaCard({ idea, saved, onSave, saving }: {
+  idea: Idea;
+  saved?: boolean;
+  onSave?: (idea: Idea) => void;
+  saving?: boolean;
+}) {
   const matches = [
     ...(idea.fit?.matched_interests ?? []).map((t) => ({ t, kind: "interest" })),
     ...(idea.fit?.matched_skills ?? []).map((t) => ({ t, kind: "skill" })),
@@ -69,6 +74,17 @@ export default function IdeaCard({ idea }: { idea: Idea }) {
             ))}
           </div>
         </div>
+      )}
+
+      {onSave && (
+        <button
+          type="button"
+          onClick={() => onSave(idea)}
+          disabled={saved || saving}
+          style={{ marginTop: "auto", alignSelf: "flex-start" }}
+        >
+          {saved ? "Saved — mentor ready" : saving ? "Saving…" : "Save & ask mentor"}
+        </button>
       )}
     </article>
   );
