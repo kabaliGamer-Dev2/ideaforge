@@ -1,2 +1,2 @@
 import express from "express";
-import "./server/index.mjs";
+export { app, default } from "./server/index.mjs";
