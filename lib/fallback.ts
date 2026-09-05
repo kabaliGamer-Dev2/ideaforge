@@ -1,4 +1,4 @@
-import type { GenerateInput, Idea, MentorIntent } from "../src/lib/types.ts";
+import type { GenerateInput, Idea, MentorIntent, ProjectFiles, ResearchDossier } from "../src/lib/types.ts";
 import { createHash } from "node:crypto";
 
 function deterministicId(seed: string): string {
@@ -186,4 +186,175 @@ const FALLBACK_REPLIES: Record<MentorIntent, (idea: Idea) => string> = {
 
 export function mentorFallbackReply(intent: MentorIntent, idea: Idea): string {
   return FALLBACK_REPLIES[intent](idea);
+}
+
+export function fallbackResearch(input: GenerateInput, idea: Idea): ResearchDossier {
+  const weeks = Math.max(1, input.duration_weeks);
+  return {
+    summary: `A feasibility-and-advancement dossier for "${idea.title}" in the ${idea.domain} domain, built from the student's ${input.skills.join(", ") || "declared skills"} and a ${weeks}-week budget.`,
+    market_context: [
+      `The ${idea.domain} space has active open-source and commercial tooling, which means existing infrastructure can be reused rather than rebuilt.`,
+      `Academic projects in this domain are judged on one working vertical slice plus a measured claim — not on breadth.`,
+      `Local context matters: deployable, single-tenant tools for ${idea.domain} use-cases are scarce in university settings.`,
+    ],
+    existing_solutions: [
+      `General-purpose platforms (the large ${idea.domain} suites) are heavyweight and unconfigurable for a semester.`,
+      "Templates and boilerplate repos cover the happy path but stop at real data, real errors, and real users.",
+      "DIY blog-post builds demonstrate parts but rarely ship a coherent product.",
+    ],
+    gap: `No existing solution combines (a) a ${idea.domain} focus, (b) the student's actual skills, and (c) a documented ${weeks}-week build order. IdeaForge's fit line already names (b); this project fills the gap by making (c) real and reviewable.`,
+    advanced_features: [
+      `A measured claim: one visible success metric (${idea.features[0] ?? "the core flow"} completion rate) tracked and reported.`,
+      "Real (even small) data instead of mockups — a CSV, a public dataset, or hand-collected records.",
+      "A failure-mode story: what happens when the AI/data source is unavailable, handled calmly.",
+      "An export or share artifact (report, PDF, link) that makes the demo feel like a product.",
+      "One accessibility or performance pass that examiners notice.",
+    ],
+    validation_plan: [
+      `Weeks 1-2: define the one metric that proves "${idea.title}" works.`,
+      "Weeks 3-4: build the vertical slice and measure it on real input.",
+      "Mid-project: 2-3 classmates use it and report what breaks — fix the top two.",
+      `Final week: rehearse the demo script and the failure case; no new features.`,
+    ],
+    risks: [
+      `Scope creep in weeks 1-2 — the fix is the cut list from the mentor.`,
+      `The data pipeline taking longer than expected — start with the smallest honest dataset.`,
+      `The demo depending on a live third party — the dual-path fallback covers this.`,
+    ],
+  };
+}
+
+export function fallbackProjectFiles(input: GenerateInput, idea: Idea, research: ResearchDossier): ProjectFiles {
+  const weeks = Math.max(1, input.duration_weeks);
+  const roadmap = idea.roadmap.length > 0 ? idea.roadmap : roadmapFor(weeks);
+
+  const prd = `# PRD — ${idea.title}
+
+**Domain:** ${idea.domain} · **Difficulty:** ${idea.difficulty} · **Duration:** ${weeks} weeks
+**Student skills:** ${input.skills.join(", ") || "to be learned"}
+
+## Problem
+${idea.summary}
+
+## Why it fits
+${idea.why_fits || "Directly uses the student's declared interests and skills."}
+
+## Users
+Final-year student (builder and primary user) · guide/examiner (reviewer of feasibility and design reasoning).
+
+## Scope
+In scope: ${idea.features.join("; ")}.
+Out of scope: accounts/authentication, teams, payments, mobile apps, anything requiring background workers.
+
+## Functional requirements
+${idea.features.map((f, i) => `- FR-${i + 1}: ${f}`).join("\n")}
+
+## Non-functional requirements
+- Generation/processing completes within 20 seconds or falls back to templates.
+- No unhandled server error from malformed AI output.
+- Credentials live only in server-side environment variables.
+- Interface usable at 375px; keyboard focus visible; reduced-motion respected.
+
+## Acceptance criteria
+1. The app loads and the form is usable.
+2. Submitting interests and skills returns ranked ideas with visible fit reasons.
+3. With the AI credential removed, the product still works (template engine).
+4. An idea can be saved and then asked about; replies are grounded in the saved spec.
+5. No credential appears in the browser network tab, page source, or console.
+`;
+
+  const brain = `# BRAIN — ${idea.title}
+
+Design decisions log. Every choice recorded with the trade-off it accepted.
+
+## Decisions
+| # | Decision | Why | Rejected alternative |
+|---|---|---|---|
+| 1 | Dual-path AI: LLM first, deterministic template fallback | A live demo cannot depend on a third party; a provider failure degrades quality, never availability | LLM-only |
+| 2 | Rank with visible fit reasons (0.4·model + 1.2·interest + 0.8·skill) | Explainability is a functional requirement: the student must defend the choice | Collaborative filtering (cold-start impossible) |
+| 3 | Discard-on-missing-title; repair everything else | A title has no sensible default; other fields do | Auto-repair titles |
+| 4 | Server-side service-role only; RLS on with zero policies | The anon key becomes inert; the server is the only writer | Client-side Supabase |
+| 5 | Week-by-week roadmap scaled to the student's weeks | Feasibility is the product | Fixed generic roadmap |
+| 6 | Plain text rendering, no markdown renderer | Prompt-injected markup must not execute | dangerouslySetInnerHTML |
+
+## Open questions
+- Which single metric will be reported at the viva? (decide in week 1)
+- Which dataset is the honest minimum? (decide in week 2)
+`;
+
+  const architecture = `# ARCHITECTURE — ${idea.title}
+
+**Stack:** ${idea.stack.join(", ")}
+
+## Components
+- Client: React (Vite) — form, ranked cards, fit gauge, mentor chat, research dossier, file export.
+- Server: Express — validation, dual-path generation, ranking, mentor turns, dataset persistence.
+- Database: Supabase Postgres — ideas, messages, generations (training data). RLS on, zero policies; only the server writes.
+- AI providers (OpenAI-compatible): NVIDIA Nemotron · Gemini · Groq — ordered by user preference, deterministic fallback behind all of them.
+
+## Data model
+- ideas(id, session_id, title, domain, summary, why_fits, difficulty, duration_weeks, score, features, stack, skills_used, roadmap)
+- messages(id, idea_id, session_id, role, content)
+- generations(id, session_id, interests, skills, difficulty, duration_weeks, count, source, provider, ideas) — the training dataset
+
+## API surface
+- POST /api/generate — input profile → ranked ideas (source: llm | fallback)
+- POST /api/research — idea → research dossier
+- POST /api/project-files — idea + dossier → PRD/BRAIN/ARCHITECTURE/PLAN/PLAN-DAY
+- POST /api/ideas · GET /api/ideas · POST /api/mentor · GET /api/health
+
+## Security
+- No credential is prefixed NEXT_PUBLIC_; nothing is sent to the browser.
+- User-supplied Gemini key: sessionStorage only, used per request, never logged, never persisted.
+- No auth and no rate limiting — stated, first fix after the deadline.
+`;
+
+  const plan = `# PLAN — ${idea.title} (${weeks} weeks)
+
+Week-by-week build plan with milestones and checkpoints.
+
+${roadmap.map((w) => `- ${w}`).join("\n")}
+
+## Checkpoints
+- After week 1: scope write-up + acceptance criteria finalised.
+- After week 2: data model + API surface designed; dataset chosen.
+- Mid-project: vertical slice working end-to-end on real input.
+- One week before defence: demo script rehearsed, failure case rehearsed, no new features.
+
+## Definition of done
+- The five acceptance criteria in PRD.md all pass against the deployed URL.
+- A stranger can build from this pack without asking questions.
+`;
+
+  const dayPlan = `# PLAN-DAY — ${idea.title} (${weeks} weeks, day-by-day)
+
+${roadmap
+  .map((line) => {
+    const match = line.match(/Week (\d+)-(\d+): (.*)/);
+    if (!match) return line;
+    const [, from, to, step] = match;
+    const days: string[] = [];
+    const weeks = Number(to) - Number(from) + 1;
+    for (let w = 0; w < weeks; w++) {
+      const weekNo = Number(from) + w;
+      days.push(
+        `## Week ${weekNo}\n` +
+          `- Day 1: research and outline for "${step}" — 1 page max\n` +
+          `- Day 2: smallest working piece of "${step}"\n` +
+          `- Day 3: integrate, test, fix; log one decision in BRAIN.md\n` +
+          `- Day 4: polish and commit; update PLAN.md progress\n` +
+          `- Day 5: buffer — review, catch-up, or viva prep\n`
+      );
+    }
+    return days.join("\n");
+  })
+  .join("\n")}
+
+## Daily rules
+- Never skip Day 5 — buffer days are what make the plan survive reality.
+- Every commit must leave the app running.
+- Every Friday: update BRAIN.md with one decision.
+`;
+
+  return { "PRD.md": prd, "BRAIN.md": brain, "ARCHITECTURE.md": architecture, "PLAN.md": plan, "PLAN-DAY.md": dayPlan };
 }

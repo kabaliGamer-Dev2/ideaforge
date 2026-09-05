@@ -5,8 +5,8 @@ import { fileURLToPath } from "node:url";
 import { randomUUID } from "node:crypto";
 import { VALID_DIFFICULTY } from "../src/lib/types.ts";
 import { parseJsonObject, sanitizeIdea, rankIdeas } from "../lib/sanitize.ts";
-import { generateFallbackIdeas, mentorFallbackReply } from "../lib/fallback.ts";
-import { buildGeneratePrompt, buildMentorPrompt, classifyIntent } from "../lib/prompt.ts";
+import { generateFallbackIdeas, mentorFallbackReply, fallbackResearch, fallbackProjectFiles } from "../lib/fallback.ts";
+import { buildGeneratePrompt, buildMentorPrompt, classifyIntent, buildResearchPrompt, buildProjectFilesPrompt } from "../lib/prompt.ts";
 import { callLlm } from "../lib/llm.ts";
 import { getSupabase, dbConfigured } from "./supabase.mjs";
 
@@ -58,10 +58,11 @@ function parseGenerateInput(body) {
     };
   }
 
-  let difficulty = "intermediate";
+  let difficulty = "medium";
   if (typeof body.difficulty === "string") {
     const lower = body.difficulty.toLowerCase();
-    if (VALID_DIFFICULTY.includes(lower)) difficulty = lower;
+    const normalized = lower === "intermediate" ? "medium" : lower;
+    if (VALID_DIFFICULTY.includes(normalized)) difficulty = normalized;
   }
 
   let durationWeeks = 12;
@@ -69,9 +70,9 @@ function parseGenerateInput(body) {
     durationWeeks = Math.min(MAX_DURATION, Math.max(1, Math.round(body.duration_weeks)));
   }
 
-  let count = 5;
+  let count = 4;
   if (typeof body.count === "number" && Number.isFinite(body.count)) {
-    count = Math.min(MAX_COUNT, Math.max(1, Math.round(body.count)));
+    count = Math.min(MAX_COUNT, Math.max(3, Math.round(body.count)));
   }
 
   const notes = typeof body.notes === "string" ? body.notes.slice(0, 1000) : undefined;
@@ -99,13 +100,14 @@ app.post("/api/generate", async (req, res) => {
     typeof req.body?.user_api_key === "string" && req.body.user_api_key.trim().length > 0
       ? req.body.user_api_key.trim()
       : undefined;
+  const userModel = ["nvidia", "gemini", "auto"].includes(req.body?.user_model) ? req.body.user_model : "auto";
 
   let source = "llm";
   let provider = null;
   let candidates = null;
 
   const { system, user } = buildGeneratePrompt(input);
-  const llmResult = await callLlm(system, user, userGeminiKey);
+  const llmResult = await callLlm(system, user, userGeminiKey, userModel, 12000);
   if ("text" in llmResult) {
     provider = llmResult.provider;
     const parsedModel = parseJsonObject(llmResult.text);
@@ -305,6 +307,106 @@ app.post("/api/mentor", async (req, res) => {
   }
 
   res.json({ ok: true, source, intent, reply, message_id: randomUUID() });
+});
+
+// -------------------------------------------------------------- /api/research
+app.post("/api/research", async (req, res) => {
+  const b = req.body ?? {};
+  const input = parseGenerateInput(b).input ?? {
+    interests: [], skills: [], difficulty: "medium", duration_weeks: 12, count: 3,
+  };
+  const idea = sanitizeIdea(b.idea);
+  if (!idea) {
+    return res.status(422).json({ ok: false, error: "validation_failed", message: "Idea is not valid.", fields: {} });
+  }
+
+  const userGeminiKey =
+    typeof b.user_api_key === "string" && b.user_api_key.trim().length > 0 ? b.user_api_key.trim() : undefined;
+  const userModel = ["nvidia", "gemini", "auto"].includes(b.user_model) ? b.user_model : "auto";
+
+  const { system, user } = buildResearchPrompt(input, idea);
+  const llmResult = await callLlm(system, user, userGeminiKey, userModel, 12000);
+
+  let dossier;
+  let source = "llm";
+  let provider = null;
+  if ("text" in llmResult) {
+    provider = llmResult.provider;
+    const parsed = parseJsonObject(llmResult.text);
+    if (parsed && Array.isArray(parsed.summary) === false && typeof parsed.summary === "string") {
+      dossier = {
+        summary: parsed.summary ?? "",
+        market_context: Array.isArray(parsed.market_context) ? parsed.market_context : [],
+        existing_solutions: Array.isArray(parsed.existing_solutions) ? parsed.existing_solutions : [],
+        gap: typeof parsed.gap === "string" ? parsed.gap : "",
+        advanced_features: Array.isArray(parsed.advanced_features) ? parsed.advanced_features : [],
+        validation_plan: Array.isArray(parsed.validation_plan) ? parsed.validation_plan : [],
+        risks: Array.isArray(parsed.risks) ? parsed.risks : [],
+      };
+    } else {
+      console.log("[research] model returned unusable dossier — falling back");
+      source = "fallback";
+    }
+  } else {
+    console.log(`[research] llm error ${llmResult.error} — falling back`);
+    source = "fallback";
+  }
+  if (!dossier) {
+    dossier = fallbackResearch(input, idea);
+    source = "fallback";
+  }
+
+  res.json({ ok: true, source, provider, dossier });
+});
+
+// --------------------------------------------------------- /api/project-files
+app.post("/api/project-files", async (req, res) => {
+  const b = req.body ?? {};
+  const input = parseGenerateInput(b).input ?? {
+    interests: [], skills: [], difficulty: "medium", duration_weeks: 12, count: 3,
+  };
+  const idea = sanitizeIdea(b.idea);
+  if (!idea) {
+    return res.status(422).json({ ok: false, error: "validation_failed", message: "Idea is not valid.", fields: {} });
+  }
+  const research = (b.research ?? {}) || {};
+
+  const userGeminiKey =
+    typeof b.user_api_key === "string" && b.user_api_key.trim().length > 0 ? b.user_api_key.trim() : undefined;
+  const userModel = ["nvidia", "gemini", "auto"].includes(b.user_model) ? b.user_model : "auto";
+
+  const { system, user } = buildProjectFilesPrompt(input, idea, research);
+  const llmResult = await callLlm(system, user, userGeminiKey, userModel, 12000);
+
+  let files;
+  let source = "llm";
+  let provider = null;
+  const wanted = ["PRD.md", "BRAIN.md", "ARCHITECTURE.md", "PLAN.md", "PLAN-DAY.md"];
+  if ("text" in llmResult) {
+    provider = llmResult.provider;
+    const parsed = parseJsonObject(llmResult.text);
+    const fallbackPack = fallbackProjectFiles(input, idea, research);
+    if (parsed) {
+      // Merge: accept what the model produced, complete the rest from the fallback pack.
+      const merged = {};
+      for (const k of wanted) {
+        merged[k] = typeof parsed[k] === "string" && parsed[k].length > 100 ? parsed[k] : fallbackPack[k];
+      }
+      files = merged;
+    } else {
+      console.log("[files] model returned unusable documents — falling back");
+      source = "fallback";
+    }
+  } else {
+    console.log(`[files] llm error ${llmResult.error} — falling back`);
+    source = "fallback";
+  }
+  if (!files) {
+    files = fallbackProjectFiles(input, idea, research);
+    source = "fallback";
+  }
+
+  res.json({ ok: true, source, provider, files });
 });
 
 // -------------------------------------------------------- static client build

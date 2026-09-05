@@ -96,11 +96,12 @@ export function sanitizeIdea(raw: unknown): Idea | null {
   const title = typeof titleRaw === "string" ? titleRaw.trim() : "";
   if (title.length === 0) return null; // discard the whole idea — no sensible default
 
-  let difficulty: Difficulty = "intermediate";
+  let difficulty: Difficulty = "medium";
   if (typeof raw.difficulty === "string") {
     const lower = raw.difficulty.toLowerCase();
-    if ((VALID_DIFFICULTY as readonly string[]).includes(lower)) {
-      difficulty = lower as Difficulty;
+    const normalized = lower === "intermediate" ? "medium" : lower;
+    if ((VALID_DIFFICULTY as readonly string[]).includes(normalized)) {
+      difficulty = normalized as Difficulty;
     }
   }
 

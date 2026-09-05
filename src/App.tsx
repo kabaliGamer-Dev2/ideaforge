@@ -9,7 +9,7 @@ export default function App() {
   const [ideas, setIdeas] = useState<GenerateResult["ideas"]>([]);
   const [source, setSource] = useState<"llm" | "fallback">("fallback");
   const [provider, setProvider] = useState<string | null>(null);
-  const [lastInput, setLastInput] = useState<{ interests: string[]; skills: string[] }>({ interests: [], skills: [] });
+  const [lastInput, setLastInput] = useState<GenerateResult | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
   const [savedClientId, setSavedClientId] = useState<string | null>(null);
   const [savedTitle, setSavedTitle] = useState("");
@@ -101,7 +101,7 @@ export default function App() {
             setIdeas(result.ideas);
             setSource(result.source);
             setProvider(result.provider);
-            setLastInput({ interests: result.interests, skills: result.skills });
+            setLastInput(result);
             setSavedId(null);
             setSavedClientId(null);
             setSavedTitle("");
@@ -109,13 +109,19 @@ export default function App() {
         />
       </section>
 
-      {ideas.length > 0 && (
+      {ideas.length > 0 && lastInput && (
         <ResultsList
           ideas={ideas}
           source={source}
           provider={provider}
           interests={lastInput.interests}
           skills={lastInput.skills}
+          profile={{
+            interests: lastInput.interests,
+            skills: lastInput.skills,
+            difficulty: lastInput.difficulty,
+            duration_weeks: lastInput.duration_weeks,
+          }}
           onSave={onSave}
           savedClientId={savedClientId}
           savingId={saving}

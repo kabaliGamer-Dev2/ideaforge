@@ -1,4 +1,4 @@
-import type { GenerateInput, Idea, MentorIntent, MentorMessage } from "../src/lib/types.ts";
+import type { GenerateInput, Idea, MentorIntent, MentorMessage, ResearchDossier } from "../src/lib/types.ts";
 
 export function buildGeneratePrompt(input: GenerateInput): { system: string; user: string } {
   const system =
@@ -69,6 +69,61 @@ const INTENT_KEYWORDS: [MentorIntent, string[]][] = [
   ["skill_gap", ["don't know", "do not know", "dont know", "learn", "skill", "new to", "no experience", "never used", "unfamiliar"]],
   ["stack", ["stack", "framework", "library", "database", "frontend", "backend", "api", "tool", "language", "deploy"]],
 ];
+
+export function buildResearchPrompt(input: GenerateInput, idea: Idea): { system: string; user: string } {
+  const system =
+    "You are a senior research mentor preparing a final-year student's capstone project for defence. " +
+    "Reply with a single JSON object only, no prose, no code fence. " +
+    'Shape: { "summary": string, "market_context": string[], "existing_solutions": string[], ' +
+    '"gap": string, "advanced_features": string[], "validation_plan": string[], "risks": string[] }. ' +
+    "Act as though you researched the domain deeply: name real product categories, real approaches, " +
+    "and real risks. Be concrete and specific — never generic filler. " +
+    "Each array must have 3-6 items.";
+
+  const user = [
+    `PROJECT TITLE: ${idea.title}`,
+    `DOMAIN: ${idea.domain}`,
+    `SUMMARY: ${idea.summary}`,
+    `FEATURES: ${idea.features.join(", ")}`,
+    `STACK: ${idea.stack.join(", ")}`,
+    `STUDENT SKILLS: ${input.skills.join(", ") || "(none)"}`,
+    `DURATION: ${input.duration_weeks} weeks`,
+    `TASK: Produce the research dossier that would turn this project from good to advanced — ` +
+      "market context, what already exists, the gap this project fills, advanced features worth " +
+      "adding, how to validate it, and the risks to watch.",
+  ].join("\n");
+
+  return { system, user };
+}
+
+export function buildProjectFilesPrompt(input: GenerateInput, idea: Idea, research: ResearchDossier): { system: string; user: string } {
+  const system =
+    "You are a technical writer producing the complete starter documentation pack for a final-year " +
+    "capstone project. Reply with a single JSON object only, no prose, no code fence. " +
+    'Shape: { "PRD.md": string, "BRAIN.md": string, "ARCHITECTURE.md": string, "PLAN.md": string, "PLAN-DAY.md": string }. ' +
+    "Each value is the FULL markdown content of that file. " +
+    "PRD.md: product requirements — problem, users, scope, functional requirements list, non-functional, acceptance criteria, out of scope. " +
+    "BRAIN.md: design decisions and trade-offs log — every major choice and why, including what was rejected. " +
+    "ARCHITECTURE.md: system design — components, data model, API surface, security notes, deployment. " +
+    "PLAN.md: week-by-week build plan with milestones, tests, and checkpoints. " +
+    "PLAN-DAY.md: day-by-day task breakdown for each week with concrete daily tasks. " +
+    "Write files that a stranger could pick up and start building from. Use markdown headings, lists and tables.";
+
+  const user = [
+    `PROJECT TITLE: ${idea.title}`,
+    `DOMAIN: ${idea.domain}`,
+    `DIFFICULTY: ${idea.difficulty}`,
+    `SUMMARY: ${idea.summary}`,
+    `FEATURES: ${idea.features.join(", ")}`,
+    `STACK: ${idea.stack.join(", ")}`,
+    `ROADMAP: ${idea.roadmap.join(" | ")}`,
+    `RESEARCH DOSSIER: ${JSON.stringify(research)}`,
+    `STUDENT SKILLS: ${input.skills.join(", ") || "(none)"}`,
+    `DURATION: ${input.duration_weeks} weeks`,
+  ].join("\n");
+
+  return { system, user };
+}
 
 export function classifyIntent(message: string): MentorIntent {
   const lower = message.toLowerCase();

@@ -1,5 +1,6 @@
-import type { ClientIdea } from "@/lib/types";
+import type { ClientIdea, Difficulty } from "@/lib/types";
 import IdeaCard from "./IdeaCard";
+import ResearchPanel from "./ResearchPanel";
 
 export default function ResultsList({
   ideas,
@@ -7,6 +8,7 @@ export default function ResultsList({
   provider,
   interests,
   skills,
+  profile,
   onSave,
   savedClientId,
   savingId,
@@ -16,6 +18,7 @@ export default function ResultsList({
   provider: string | null;
   interests: string[];
   skills: string[];
+  profile: { interests: string[]; skills: string[]; difficulty: Difficulty; duration_weeks: number };
   onSave?: (id: string, title: string) => void;
   savedClientId?: string | null;
   savingId?: string | null;
@@ -42,15 +45,20 @@ export default function ResultsList({
 
       <div className="idea-list">
         {ideas.map((idea, i) => (
-          <IdeaCard
-            key={idea.id}
-            idea={idea}
-            rank={i + 1}
-            featured={i === 0}
-            onSave={onSave}
-            saved={savedClientId === idea.id}
-            saving={savingId === idea.id}
-          />
+          <div key={idea.id} className="idea-block">
+            <IdeaCard
+              idea={idea}
+              rank={i + 1}
+              featured={i === 0}
+              onSave={onSave}
+              saved={savedClientId === idea.id}
+              saving={savingId === idea.id}
+            />
+            <ResearchPanel
+              idea={idea}
+              profile={profile}
+            />
+          </div>
         ))}
       </div>
     </section>

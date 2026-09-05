@@ -50,6 +50,7 @@ button:active { transform: translateY(1px); }
 button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 button.ghost { background: transparent; color: var(--ink); }
 button.ghost:hover { background: rgba(15, 15, 15, 0.08); }
+button.small { padding: 6px 10px; font-size: 11px; }
 
 input, select {
   font-family: var(--mono);
@@ -229,6 +230,40 @@ h1 {
   background: #FFFFFF;
 }
 .chip.match { background: var(--ink); color: var(--paper); font-weight: 700; }
+
+/* ---- pickers (selectable chips) ---- */
+.picker-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 6px; }
+.picker-grid button.chip {
+  padding: 8px 6px;
+  min-height: 38px;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.picker-grid button.chip:hover { border-color: var(--ink); background: rgba(15, 15, 15, 0.06); }
+.picker-grid button.chip:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.picker-grid button.chip.match:hover { background: #2A2A2A; }
+.picker-suggest button.chip { cursor: pointer; }
+.picker-suggest button.chip:hover { border-color: var(--ink); background: rgba(15, 15, 15, 0.06); }
+
+/* ---- research + files ---- */
+.chiprow { display: flex; gap: 10px; flex-wrap: wrap; }
+.dossier {
+  border: 1px solid var(--line);
+  background: rgba(15, 15, 15, 0.02);
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+.files-note { font-size: 11.5px; color: var(--grey); }
+.idea-block { display: grid; gap: 10px; }
 .roadmap { display: grid; gap: 4px; }
 .roadmap .week {
   font-family: var(--mono);
