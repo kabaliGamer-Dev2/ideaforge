@@ -17,9 +17,13 @@ const PORT = process.env.PORT ?? 4000;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Minimal .env.local loader — values already set in the environment win.
-for (const line of fs.readFileSync(path.join(__dirname, "..", ".env.local"), "utf8").split("\n")) {
-  const m = line.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/);
-  if (m && process.env[m[1]] === undefined) process.env[m[1]] = m[2].replace(/^["']|["']$/g, "");
+// Safe when the file is absent (e.g. Vercel, where env vars come from the dashboard).
+const envPath = path.join(__dirname, "..", ".env.local");
+if (fs.existsSync(envPath)) {
+  for (const line of fs.readFileSync(envPath, "utf8").split("\n")) {
+    const m = line.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/);
+    if (m && process.env[m[1]] === undefined) process.env[m[1]] = m[2].replace(/^["']|["']$/g, "");
+  }
 }
 
 // ---------------------------------------------------------------- /api/health
