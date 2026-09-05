@@ -1,0 +1,75 @@
+"use client";
+
+import type { Idea } from "./IdeaForm";
+import FitGauge from "./FitGauge";
+
+export default function IdeaCard({ idea }: { idea: Idea }) {
+  const matches = [
+    ...(idea.fit?.matched_interests ?? []).map((t) => ({ t, kind: "interest" })),
+    ...(idea.fit?.matched_skills ?? []).map((t) => ({ t, kind: "skill" })),
+  ];
+
+  return (
+    <article className="idea-card">
+      <div className="idea-meta">
+        {idea.domain} · {idea.difficulty} · {idea.duration_weeks} weeks
+      </div>
+      <h3 className="idea-title">{idea.title}</h3>
+      <p className="idea-prose">{idea.summary}</p>
+      {idea.why_fits && <p className="idea-prose">
+        <em>Why it fits:</em> {idea.why_fits}
+      </p>}
+
+      {idea.fit && (
+        <>
+          <div>
+            <div className="idea-block-label">Fit — visible reason, not a number</div>
+            <FitGauge band={idea.fit.band} />
+            {matches.length > 0 && (
+              <div className="chips" style={{ marginTop: 8 }}>
+                {matches.map((m) => (
+                  <span key={m.t} className="chip match">
+                    {m.kind === "interest" ? "◎" : "◆"} {m.t}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      <div>
+        <div className="idea-block-label">Features</div>
+        <ul className="idea-features">
+          {idea.features.map((f) => (
+            <li key={f}>{f}</li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <div className="idea-block-label">Stack</div>
+        <div className="chips">
+          {idea.stack.map((s) => (
+            <span key={s} className="chip">
+              {s}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {idea.roadmap.length > 0 && (
+        <div>
+          <div className="idea-block-label">Roadmap</div>
+          <div className="roadmap">
+            {idea.roadmap.map((w) => (
+              <div key={w} className="week">
+                {w}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </article>
+  );
+}
