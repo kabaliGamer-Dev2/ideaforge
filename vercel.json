@@ -1,3 +1,6 @@
 {
-  "framework": "express"
+  "framework": "express",
+  "functions": {
+    "index.mjs": { "includeFiles": "dist/**" }
+  }
 }
