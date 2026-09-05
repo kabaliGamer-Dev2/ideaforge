@@ -34,7 +34,7 @@ export interface GenerateInput {
   notes?: string;
 }
 
-export type MentorIntent = "scope" | "skill_gap" | "stack" | "timeline" | "viva" | "general";
+export type MentorIntent = "scope" | "skill_gap" | "stack" | "timeline" | "viva" | "improvements" | "general";
 
 export interface MentorMessage {
   role: "user" | "assistant";

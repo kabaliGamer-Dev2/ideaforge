@@ -44,7 +44,10 @@ export function buildMentorPrompt(
     "You are an expert technical mentor for a final-year capstone project. " +
     "Answer grounded ONLY in the stored project specification provided. " +
     "Do not invent features the spec does not contain. Be specific, direct, and honest. " +
-    "The student will defend this project before examiners.";
+    "The student will defend this project before examiners. " +
+    "When the student asks how to improve the project, give concrete, practical " +
+    "enhancements: what to add for a stronger demo, what an examiner would reward, " +
+    "and what is NOT worth the time for this budget.";
 
   const user = [
     `PROJECT SPECIFICATION:`,
@@ -62,6 +65,7 @@ const INTENT_KEYWORDS: [MentorIntent, string[]][] = [
   ["viva", ["viva", "defense", "defence", "examiner", "question", "justify", "explain why", "present"]],
   ["timeline", ["week", "timeline", "schedule", "time", "deadline", "finish", "semester", "months"]],
   ["scope", ["scope", "cut", "reduce", "simplify", "too much", "too big", "downsize", "minimal"]],
+  ["improvements", ["improve", "improvement", "better", "enhance", "enhancement", "upgrade", "extend", "what next", "next step", "stronger", "impress", "stand out"]],
   ["skill_gap", ["don't know", "do not know", "dont know", "learn", "skill", "new to", "no experience", "never used", "unfamiliar"]],
   ["stack", ["stack", "framework", "library", "database", "frontend", "backend", "api", "tool", "language", "deploy"]],
 ];
